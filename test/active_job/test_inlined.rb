@@ -5,7 +5,10 @@ require "test_helper"
 class ActiveJob::TestInlined < ActiveSupport::TestCase
   include ActiveJob::TestHelper
 
-  setup { Post.published = false }
+  setup do
+    ActiveSupport::CurrentAttributes.clear_all
+    Post.published = false
+  end
 
   test "version number" do
     refute_nil ::ActiveJob::Inlined::VERSION
@@ -21,6 +24,8 @@ class ActiveJob::TestInlined < ActiveSupport::TestCase
   end
 
   test "running inlined outside of job enqueues" do
+    refute_predicate ActiveJob::ExecutionContext, :executing?
+
     assert_enqueued_jobs 1, only: Post::PublishJob do
       Post::PublishJob.inlined.perform_later
     end
