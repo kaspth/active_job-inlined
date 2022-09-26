@@ -33,4 +33,10 @@ class ActiveJob::TestInlined < ActiveSupport::TestCase
     perform_enqueued_jobs
     assert Post.published
   end
+
+  test "running inlined inside of a job executes it inline" do
+    Post::SequenceJob.perform_now
+    assert_no_enqueued_jobs
+    assert Post.published
+  end
 end

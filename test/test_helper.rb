@@ -15,6 +15,18 @@ class Post
     self.published = true
   end
 
+  # We're calling a model method to check the `inlined` works correctly across the
+  # job -> model boundary.
+  def submit_in_sequence
+    Post::PublishJob.inlined.perform_later
+  end
+
+  class SequenceJob < ApplicationJob
+    def perform
+      Post.new.submit_in_sequence
+    end
+  end
+
   class PublishJob < ApplicationJob
     def perform
       Post.new.publish
