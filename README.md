@@ -1,8 +1,53 @@
 # ActiveJob::Inlined
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/active_job/inlined`. To experiment with that code, run `bin/console` for an interactive prompt.
+`ActiveJob::Inlined` lets you run jobs inline within other jobs.
 
-TODO: Delete this and the text above, and describe your gem
+Set this up in your app:
+
+```ruby
+class ApplicationJob < ActiveJob::Base
+  extend ActiveJob::Inlined
+end
+```
+
+Then use it:
+
+```ruby
+class Post < ActiveRecord::Base
+  def release_later
+    Release::SequenceJob.perform_later self
+  end
+
+  def release
+    prep_marketing_department pizzazz_required: "✨✨✨✨"
+    some_other_step
+    # …then more stuff in the sequence, but at one point we run:
+    publish_later
+  end
+
+  def publish_later
+    # Now, we mark the job as `inlined`, i.e. we'll really call `perform_now`
+    # if we're within another job (or do the usual `perform_later` if not).
+    PublishJob.inlined.perform_later self
+  end
+
+  def publish
+    puts "lol"
+  end
+end
+
+class Post::Release::SequenceJob < ApplicationJob
+  def perform(post)
+    post.release
+  end
+end
+
+class Post::PublishJob < ApplicationJob
+  def perform(post)
+    post.publish
+  end
+end
+```
 
 ## Installation
 
