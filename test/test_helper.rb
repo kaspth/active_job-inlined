@@ -4,6 +4,8 @@ $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "active_job"
 require "active_job/inlined"
 
+require "minitest/autorun"
+
 class ApplicationJob < ActiveJob::Base
   extend ActiveJob::Inlined
 end
@@ -29,5 +31,3 @@ class Post
     def perform = Post.new.publish
   end
 end
-
-require "minitest/autorun"
