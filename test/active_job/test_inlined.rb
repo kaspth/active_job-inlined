@@ -3,13 +3,6 @@
 require "test_helper"
 
 class ActiveJob::TestInlined < ActiveSupport::TestCase
-  include ActiveJob::TestHelper
-
-  setup do
-    ActiveSupport::CurrentAttributes.clear_all
-    Post.published = false
-  end
-
   test "version number" do
     refute_nil ::ActiveJob::Inlined::VERSION
   end

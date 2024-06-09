@@ -31,3 +31,10 @@ class Post
     def perform = Post.new.publish
   end
 end
+
+class ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+
+  setup { ActiveSupport::CurrentAttributes.clear_all }
+  setup { Post.published = false }
+end
