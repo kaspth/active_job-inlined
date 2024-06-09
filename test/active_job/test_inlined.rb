@@ -24,7 +24,7 @@ class ActiveJob::TestInlined < ActiveSupport::TestCase
   end
 
   test "running inlined outside of job enqueues" do
-    refute_predicate ActiveJob::ExecutionContext, :executing?
+    refute_predicate ActiveJob::Inlined::Current, :job?
 
     assert_enqueued_jobs 1, only: Post::PublishJob do
       Post::PublishJob.inlined.perform_later

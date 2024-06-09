@@ -22,15 +22,11 @@ class Post
   end
 
   class SequenceJob < ApplicationJob
-    def perform
-      Post.new.submit_in_sequence
-    end
+    def perform = Post.new.submit_in_sequence
   end
 
   class PublishJob < ApplicationJob
-    def perform
-      Post.new.publish
-    end
+    def perform = Post.new.publish
   end
 end
 

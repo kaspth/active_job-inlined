@@ -37,15 +37,11 @@ class Post < ActiveRecord::Base
 end
 
 class Post::Release::SequenceJob < ApplicationJob
-  def perform(post)
-    post.release
-  end
+  def perform(post) = post.release
 end
 
 class Post::PublishJob < ApplicationJob
-  def perform(post)
-    post.publish
-  end
+  def perform(post) = post.publish
 end
 ```
 
