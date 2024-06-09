@@ -23,7 +23,7 @@ module ActiveJob::Inlined
   #     inline_exempt { |job| job.arguments.size.even? }
   #   end
   def inline_exempt(context = nil, &block)
-    @inline_exemption = context || block || -> { true }
+    @inline_exemption = context || block || proc { true }
   end
 
   private
