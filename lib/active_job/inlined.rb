@@ -6,30 +6,15 @@ module ActiveJob; end
 require_relative "execution_context"
 
 module ActiveJob::Inlined
-  using Module.new {
-    refine Module do
-      def invert_method(invert_method, original_method)
-        class_eval "def #{invert_method}; !#{original_method}; end", __FILE__, __LINE__ + 1
-      end
-    end
-  }
-
-  def self.extended(klass)
-    klass.include ActiveJob::ExecutionContext::Integration
-  end
+  def self.extended(klass) = klass.include(ActiveJob::ExecutionContext::Integration)
 
   def inlined
     inlineable? ? Proxy.new(self) : self
   end
+  def inlineable? = executing? && inline_enrolled?
 
-  def inlineable?
-    executing? && inline_enrolled?
-  end
-
-  def inline_exempt?
-    @inline_exemption&.call(self)
-  end
-  invert_method :inline_enrolled?, :inline_exempt?
+  def inline_enrolled? = !inline_exempt?
+  def inline_exempt?   = @inline_exemption&.call(self)
 
   # By default, jobs are considered inlineable. But they can declare themselves
   # exempt by calling `inline_exempt`, like this:
@@ -43,20 +28,13 @@ module ActiveJob::Inlined
     @inline_exemption = context || block || -> { true }
   end
 
-  class Proxy
-    def initialize(job)
-      @job = job
-    end
-
+  class Proxy < Struct.new(:job)
     def perform_later(...)
-      @job.perform_now(...)
+      job.perform_now(...)
       nil
     end
 
-    def self.chains_on(method)
-      class_eval "def #{method}(...); self.class.new @job.#{method}(...); end", __FILE__, __LINE__ + 1
-    end
-    chains_on :set
-    chains_on :with
+    def set(...)  = self.class.new(job.set(...))
+    def with(...) = self.class.new(job.with(...))
   end
 end
